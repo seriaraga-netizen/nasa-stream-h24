@@ -8,16 +8,26 @@ jobs:
   stream:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Tools and Stream
+      - name: Installazione Programmi
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg python3-pip
           pip3 install yt-dlp
-          
-          # Estrae il link diretto dal video YouTube e avvia lo streaming
-          yt-dlp -g "https://www.youtube.com/watch?v=sWasdbDVNvc" | xargs -I {} \
-          ffmpeg -re -i {} \
-          -vf "drawtext=text='NO NASA - NO PROFITTO':x=w-tw-50:y=50:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5, \
-               drawtext=text='SOLO PER FAN IN ITALIA':x=w-tw-50:y=90:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5" \
-          -c:v libx264 -preset veryfast -b:v 2500k -maxrate 2500k -bufsize 5000k \
-          -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
+
+      - name: Avvio Streaming Continuo
+        run: |
+          # Ciclo infinito: se cade la linea, si riaggancia da solo
+          while true; do
+            echo "Recupero il segnale video della NASA..."
+            URL=$(yt-dlp -g "https://www.youtube.com/watch?v=sWasdbDVNvc")
+            
+            echo "Trasmissione in corso verso YouTube..."
+            ffmpeg -re -i "$URL" \
+            -vf "drawtext=text='NO NASA - NO PROFITTO':x=w-tw-50:y=50:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5, \
+                 drawtext=text='SOLO PER FAN IN ITALIA':x=w-tw-50:y=90:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5" \
+            -c:v libx264 -preset ultrafast -b:v 2500k -maxrate 2500k -bufsize 5000k \
+            -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
+            
+            echo "Riconnessione tra 5 secondi..."
+            sleep 5
+          done
