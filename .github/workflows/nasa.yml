@@ -15,11 +15,10 @@ jobs:
 
       - name: Avvio Streaming
         run: |
-          # Usiamo un trucco per leggere il flusso video senza far scattare i controlli bot
+          # Usiamo il link HLS della NASA che non ha blocchi anti-bot
           while true; do
-            echo "Tentativo di connessione al link YouTube desiderato..."
-            
-            ffmpeg -re -i "https://www.youtube.com/watch?v=sWasdbDVNvc" \
+            echo "Connessione al segnale NASA HD..."
+            ffmpeg -re -i "https://ntv1.akamaized.net/hls/live/2014049/NASA-NTV1-Public/master.m3u8" \
             -vf "drawtext=text='NO NASA - NO PROFITTO':x=w-tw-50:y=50:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5, \
                  drawtext=text='SOLO PER FAN IN ITALIA':x=w-tw-50:y=90:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5" \
             -c:v libx264 -preset ultrafast -b:v 2500k -maxrate 2500k -bufsize 5000k \
