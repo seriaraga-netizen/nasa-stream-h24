@@ -8,21 +8,17 @@ jobs:
   stream:
     runs-on: ubuntu-latest
     steps:
-      - name: Installazione Programmi
+      - name: Installazione FFmpeg
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg python3-pip
-          pip3 install yt-dlp
+          sudo apt-get install -y ffmpeg
 
-      - name: Avvio Streaming Continuo
+      - name: Avvio Streaming Diretto
         run: |
-          # Ciclo infinito: se cade la linea, si riaggancia da solo
+          # Usiamo il link HLS diretto che non richiede yt-dlp e non ha blocchi bot
           while true; do
-            echo "Recupero il segnale video della NASA..."
-            URL=$(yt-dlp -g "https://www.youtube.com/watch?v=sWasdbDVNvc")
-            
-            echo "Trasmissione in corso verso YouTube..."
-            ffmpeg -re -i "$URL" \
+            echo "Connessione al server NASA in corso..."
+            ffmpeg -re -i "https://ntv1.akamaized.net/hls/live/2014049/NASA-NTV1-Public/master.m3u8" \
             -vf "drawtext=text='NO NASA - NO PROFITTO':x=w-tw-50:y=50:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5, \
                  drawtext=text='SOLO PER FAN IN ITALIA':x=w-tw-50:y=90:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5" \
             -c:v libx264 -preset ultrafast -b:v 2500k -maxrate 2500k -bufsize 5000k \
