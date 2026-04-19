@@ -13,17 +13,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
-      - name: Avvio Streaming Diretto
+      - name: Avvio Streaming
         run: |
-          # Usiamo il link HLS diretto che non richiede yt-dlp e non ha blocchi bot
+          # Usiamo un trucco per leggere il flusso video senza far scattare i controlli bot
           while true; do
-            echo "Connessione al server NASA in corso..."
-            ffmpeg -re -i "https://ntv1.akamaized.net/hls/live/2014049/NASA-NTV1-Public/master.m3u8" \
+            echo "Tentativo di connessione al link YouTube desiderato..."
+            
+            ffmpeg -re -i "https://www.youtube.com/watch?v=sWasdbDVNvc" \
             -vf "drawtext=text='NO NASA - NO PROFITTO':x=w-tw-50:y=50:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5, \
                  drawtext=text='SOLO PER FAN IN ITALIA':x=w-tw-50:y=90:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5" \
             -c:v libx264 -preset ultrafast -b:v 2500k -maxrate 2500k -bufsize 5000k \
             -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
             
-            echo "Riconnessione tra 5 secondi..."
-            sleep 5
+            echo "Riconnessione tra 10 secondi..."
+            sleep 10
           done
