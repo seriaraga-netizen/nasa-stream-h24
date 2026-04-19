@@ -8,22 +8,24 @@ jobs:
   stream:
     runs-on: ubuntu-latest
     steps:
-      - name: Installazione FFmpeg
+      - name: Installazione Programmi
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
+          pip install yt-dlp
 
       - name: Avvio Streaming
         run: |
-          # Usiamo il link HLS della NASA che non ha blocchi anti-bot
           while true; do
-            echo "Connessione al segnale NASA HD..."
-            ffmpeg -re -i "https://ntv1.akamaized.net/hls/live/2014049/NASA-NTV1-Public/master.m3u8" \
+            # Usiamo yt-dlp solo per estrarre l'indirizzo reale del video
+            # Questo evita il blocco diretto di FFmpeg
+            STREAM_URL=$(yt-dlp -g --format "best[ext=mp4]" "https://www.youtube.com/watch?v=sWasdbDVNvc")
+            
+            ffmpeg -re -i "$STREAM_URL" \
             -vf "drawtext=text='NO NASA - NO PROFITTO':x=w-tw-50:y=50:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5, \
                  drawtext=text='SOLO PER FAN IN ITALIA':x=w-tw-50:y=90:fontsize=20:fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=5" \
             -c:v libx264 -preset ultrafast -b:v 2500k -maxrate 2500k -bufsize 5000k \
             -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -f flv "rtmp://a.rtmp.youtube.com/live2/${{ secrets.STREAM_KEY }}"
             
-            echo "Riconnessione tra 10 secondi..."
             sleep 10
           done
